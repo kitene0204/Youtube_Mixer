@@ -1,0 +1,6 @@
+{
+  "name": "YouTube DJ Mixer",
+  "description": "Pioneer DJ-inspired web mixing app featuring dual YouTube decks, real-time keyboard scratch, volume, EQ, crossfader, and DJ effects.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
