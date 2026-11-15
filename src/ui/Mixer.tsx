@@ -21,7 +21,7 @@ function Channel({ i }: { i: number }) {
         label="CFX"
         value={s.cfx}
         onChange={(v) => set({ cfx: v })}
-        color={s.cfx < -0.03 ? '#0a84ff' : s.cfx > 0.03 ? '#ff9f0a' : '#e8e8ea'}
+        color={s.cfx < -0.03 ? '#0a84ff' : s.cfx > 0.03 ? '#ff9f0a' : '#cfe3ff'}
         sub={s.cfx < -0.03 ? 'LOW PASS' : s.cfx > 0.03 ? 'HIGH PASS' : 'FILTER'}
       />
     </div>

@@ -15,7 +15,7 @@ export function Knob(props: {
   onChange: (v: number) => void;
   sub?: string;
 }) {
-  const { label, value, min = -1, max = 1, def = 0, bipolar = true, size = 46, color = '#e8e8ea', onChange, sub } = props;
+  const { label, value, min = -1, max = 1, def = 0, bipolar = true, size = 46, color = '#cfe3ff', onChange, sub } = props;
   const drag = useRef<{ y: number; v: number } | null>(null);
   const norm = (value - min) / (max - min);
   const ang = -135 + norm * 270;
@@ -59,11 +59,11 @@ export function Knob(props: {
         onDoubleClick={() => onChange(def)}
         onWheel={(e) => onChange(clamp(value - Math.sign(e.deltaY) * (max - min) * 0.03))}
       >
-        <path d={arc(-135, 135)} stroke="#2a2a2e" strokeWidth="3" fill="none" strokeLinecap="round" />
+        <path d={arc(-135, 135)} stroke="#263244" strokeWidth="3" fill="none" strokeLinecap="round" />
         {Math.abs(ang - from) > 1 && (
           <path d={arc(Math.min(from, ang), Math.max(from, ang))} stroke={color} strokeWidth="3" fill="none" strokeLinecap="round" />
         )}
-        <circle cx={cx} cy={cx} r={r - 5} fill="url(#knobGrad)" stroke="#000" strokeWidth="1" />
+        <circle cx={cx} cy={cx} r={r - 5} fill="url(#knobGrad)" stroke="#0b1018" strokeWidth="1" />
         <line
           x1={cx}
           y1={cx - (r - 7)}

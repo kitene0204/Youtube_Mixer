@@ -150,9 +150,9 @@ export default function App() {
       <svg width="0" height="0" style={{ position: 'absolute' }}>
         <defs>
           <radialGradient id="knobGrad" cx="40%" cy="35%" r="70%">
-            <stop offset="0%" stopColor="#4a4a50" />
-            <stop offset="60%" stopColor="#25252a" />
-            <stop offset="100%" stopColor="#151518" />
+            <stop offset="0%" stopColor="#3a4a60" />
+            <stop offset="60%" stopColor="#1e2836" />
+            <stop offset="100%" stopColor="#121923" />
           </radialGradient>
         </defs>
       </svg>
@@ -178,11 +178,11 @@ export default function App() {
       <div className="waves">
         <div className="wave-row">
           <span className="wave-tag">1</span>
-          <ZoomWave deck={A} accent="#ff3b30" />
+          <ZoomWave deck={A} accent="#ffffff" />
         </div>
         <div className="wave-row">
           <span className="wave-tag">2</span>
-          <ZoomWave deck={B} accent="#ff3b30" />
+          <ZoomWave deck={B} accent="#ffffff" />
         </div>
       </div>
 

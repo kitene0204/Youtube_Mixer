@@ -15,12 +15,16 @@ function fit(c: HTMLCanvasElement) {
   return { w, h, dpr };
 }
 
-function waveColor(low: number, a: number) {
-  // 저음이 많으면 파랑, 고음이 많으면 하양
-  const r = Math.round(60 + (1 - low) * 190);
-  const g = Math.round(110 + (1 - low) * 135);
-  const b = 255;
-  return `rgba(${r},${g},${b},${a})`;
+// 데크마다 색: 1번 = 주황(저음)+하늘(고음), 2번 = 파랑(저음)+청록(고음)
+const PAL = [
+  { lo: [255, 168, 38], hi: [190, 220, 255] },
+  { lo: [30, 120, 255], hi: [90, 235, 255] },
+];
+function waveColor(low: number, a: number, deck = 0) {
+  const p = PAL[deck] || PAL[0];
+  const m = Math.min(1, low * 1.4);
+  const c = (i: number) => Math.round(p.hi[i] + (p.lo[i] - p.hi[i]) * m);
+  return `rgba(${c(0)},${c(1)},${c(2)},${a})`;
 }
 
 /** 위쪽 확대 파형 (렉서박스처럼 가운데 선이 지금 위치) */
@@ -71,7 +75,7 @@ export function ZoomWave({ deck, accent }: { deck: Deck; accent: string }) {
             const a = p.amp[i] || 0;
             const lo = p.low[i] || 0;
             const hh = a * (h * 0.46);
-            x.fillStyle = waveColor(lo, px < w / 2 ? 0.55 : 1);
+            x.fillStyle = waveColor(lo, px < w / 2 ? 0.5 : 1, deck.index);
             x.fillRect(px, mid - hh, step, hh * 2);
           }
         } else if (s.kind === 'youtube') {
@@ -141,7 +145,7 @@ export function Overview({ deck }: { deck: Deck }) {
               }
               lo /= i1 - i0;
               const hh = a * h * 0.48;
-              o.fillStyle = waveColor(lo, 0.9);
+              o.fillStyle = waveColor(lo, 0.9, deck.index);
               o.fillRect(px, h / 2 - hh, 1, hh * 2);
             }
           } else {
