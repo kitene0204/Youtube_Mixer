@@ -1189,3 +1189,25 @@ kbd {
     min-width: 0;
   }
 }
+
+/* ---------- 가운데 열: 파형 + 믹서 (넓은 화면) ---------- */
+.center-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.center-col .waves {
+  margin: 0;
+  border-radius: 18px;
+  padding: 6px;
+  background: #0b1018;
+}
+.center-col .zoomwave {
+  height: 92px;
+}
+.center-col .mixer {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+}

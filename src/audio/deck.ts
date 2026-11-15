@@ -285,6 +285,7 @@ export class Deck {
       return false;
     }
     this.resetForLoad('youtube', '유튜브 불러오는 중…', '');
+    this.firstBeat = 0;
     this.set({ ytId: id, baseBpm: null });
     this.buffer = null;
     this.peaks = null;
@@ -552,6 +553,7 @@ export class Deck {
     if (this.tapTimes.length >= 4) {
       const ts = this.tapTimes;
       const avg = (ts[ts.length - 1] - ts[0]) / (ts.length - 1);
+      if (this.isYT) this.firstBeat = this.time; // 마지막으로 두드린 곳을 박자 시작점으로
       this.set({ baseBpm: Math.round((60000 / avg) * 10) / 10 });
     }
   }

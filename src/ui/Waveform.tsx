@@ -27,6 +27,36 @@ function waveColor(low: number, a: number, deck = 0) {
   return `rgba(${c(0)},${c(1)},${c(2)},${a})`;
 }
 
+// ---------- 유튜브용 "박자 모양" 파형 ----------
+// 유튜브 소리는 브라우저가 읽을 수 없어서, BPM(박자)과 영상 번호로 모양만 그린다 (실제 소리 아님)
+function hash(n: number) {
+  n = (n ^ 61) ^ (n >>> 16);
+  n = n + (n << 3);
+  n ^= n >>> 4;
+  n = Math.imul(n, 0x27d4eb2d);
+  n ^= n >>> 15;
+  return (n >>> 0) / 4294967296;
+}
+function seedOf(id: string) {
+  let h = 7;
+  for (let i = 0; i < id.length; i++) h = (Math.imul(h, 31) + id.charCodeAt(i)) | 0;
+  return h;
+}
+function fakeAt(seed: number, t: number, bpm: number, fb: number, dur: number) {
+  if (t < 0 || (dur && t > dur)) return { a: 0, lo: 0 };
+  const beat = 60 / bpm;
+  const b = (t - fb) / beat;
+  const ph = ((b % 1) + 1) % 1;
+  const kick = Math.exp(-ph * 9);
+  const hp = (((b * 2) % 1) + 1) % 1;
+  const hat = Math.exp(-hp * 14) * 0.35;
+  const sec = Math.floor(b / 16);
+  const energy = 0.55 + 0.45 * hash(seed + sec * 7919);
+  const fade = Math.max(0, Math.min(1, t / 4, dur ? (dur - t) / 4 : 1));
+  const n = hash(seed + Math.floor(t * 60));
+  return { a: fade * energy * Math.min(1, 0.22 + 0.55 * kick + hat + 0.2 * n), lo: 0.15 + 0.85 * kick };
+}
+
 /** 위쪽 확대 파형 (렉서박스처럼 가운데 선이 지금 위치) */
 export function ZoomWave({ deck, accent }: { deck: Deck; accent: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -45,7 +75,7 @@ export function ZoomWave({ deck, accent }: { deck: Deck; accent: string }) {
         const t0 = t - span / 2;
         const mid = h / 2;
         // 박자 선
-        if (s.baseBpm && deck.hasGrid) {
+        if (s.baseBpm && (deck.hasGrid || s.kind === 'youtube')) {
           const b = 60 / s.baseBpm;
           let n = Math.ceil((t0 - deck.firstBeat) / b);
           for (; ; n++) {
@@ -78,17 +108,21 @@ export function ZoomWave({ deck, accent }: { deck: Deck; accent: string }) {
             x.fillStyle = waveColor(lo, px < w / 2 ? 0.5 : 1, deck.index);
             x.fillRect(px, mid - hh, step, hh * 2);
           }
-        } else if (s.kind === 'youtube') {
-          x.fillStyle = 'rgba(255,255,255,0.28)';
-          x.font = `${11 * dpr}px "JetBrains Mono", monospace`;
-          x.textAlign = 'center';
-          x.fillText('YOUTUBE · 파형 표시 없음', w / 2, mid + 4 * dpr);
-          // 지나가는 눈금
-          for (let k = Math.floor(t0); k < t0 + span; k++) {
-            const px = (k - t0) * pxPerSec;
-            x.fillStyle = 'rgba(255,255,255,0.12)';
-            x.fillRect(px, h - 8 * dpr, dpr, 8 * dpr);
+        } else if (s.kind === 'youtube' && s.ytId) {
+          const seed = seedOf(s.ytId);
+          const bpm = s.baseBpm || 120;
+          const step = Math.max(1, Math.floor(dpr));
+          for (let px = 0; px < w; px += step) {
+            const tt = t0 + px / pxPerSec;
+            const f = fakeAt(seed, tt, bpm, deck.firstBeat, s.duration);
+            const hh = f.a * (h * 0.42);
+            x.fillStyle = waveColor(f.lo, px < w / 2 ? 0.35 : 0.75, deck.index);
+            x.fillRect(px, mid - hh, step, hh * 2);
           }
+          x.fillStyle = 'rgba(255,255,255,0.4)';
+          x.font = `${9 * dpr}px "Noto Sans KR", sans-serif`;
+          x.textAlign = 'left';
+          x.fillText(s.baseBpm ? 'YOUTUBE · 박자 모양 파형' : 'YOUTUBE · 박자 모양 파형 (TAP으로 박자 맞추기)', 6 * dpr, 12 * dpr);
         }
         // 큐 표시
         const mark = (time: number, col: string) => {
@@ -125,7 +159,7 @@ export function Overview({ deck }: { deck: Deck }) {
         const { w, h, dpr } = fit(c);
         const x = c.getContext('2d')!;
         const s = deck.state;
-        const key = `${w}x${h}:${String(deck.peaks?.amp.length)}:${s.title}`;
+        const key = `${w}x${h}:${String(deck.peaks?.amp.length)}:${s.title}:${s.ytId}:${s.duration}:${s.baseBpm}`;
         if (cache.current.key !== key) {
           const off = document.createElement('canvas');
           off.width = w;
@@ -146,6 +180,20 @@ export function Overview({ deck }: { deck: Deck }) {
               lo /= i1 - i0;
               const hh = a * h * 0.48;
               o.fillStyle = waveColor(lo, 0.9, deck.index);
+              o.fillRect(px, h / 2 - hh, 1, hh * 2);
+            }
+          } else if (s.kind === 'youtube' && s.ytId && s.duration) {
+            const seed = seedOf(s.ytId);
+            for (let px = 0; px < w; px++) {
+              let a = 0;
+              let lo = 0;
+              for (let k = 0; k < 6; k++) {
+                const f = fakeAt(seed, ((px + k / 6) / w) * s.duration, s.baseBpm || 120, deck.firstBeat, s.duration);
+                if (f.a > a) a = f.a;
+                lo += f.lo / 6;
+              }
+              const hh = a * h * 0.45;
+              o.fillStyle = waveColor(lo, 0.6, deck.index);
               o.fillRect(px, h / 2 - hh, 1, hh * 2);
             }
           } else {

@@ -27,7 +27,11 @@ export default function App() {
   const [shiftKey, setShiftKey] = useState(false);
   const w = useWidth();
   const wide = w >= 1180;
-  const jog = wide ? Math.min(310, Math.max(220, (w - 640) / 2 - 150)) : Math.min(300, w - 130);
+  // 넓은 화면: [데크1] [가운데: 파형 + 믹서] [데크2]
+  const appW = Math.min(w, 1500) - 32;
+  const centerW = Math.round(Math.max(400, Math.min(500, appW * 0.32)));
+  const deckW = (appW - centerW - 24 - 24) / 2;
+  const jog = wide ? Math.round(Math.min(310, Math.max(200, deckW - 24 - 70 - 10))) : Math.min(300, w - 130);
 
   useEffect(() => {
     engine.init();
@@ -145,6 +149,18 @@ export default function App() {
   }, []);
 
   const [A, B] = engine.decks;
+  const waves = (
+    <div className="waves">
+      <div className="wave-row">
+        <span className="wave-tag">1</span>
+        <ZoomWave deck={A} accent="#ffffff" />
+      </div>
+      <div className="wave-row">
+        <span className="wave-tag">2</span>
+        <ZoomWave deck={B} accent="#ffffff" />
+      </div>
+    </div>
+  );
   return (
     <div className="app">
       <svg width="0" height="0" style={{ position: 'absolute' }}>
@@ -175,20 +191,18 @@ export default function App() {
         </div>
       </header>
 
-      <div className="waves">
-        <div className="wave-row">
-          <span className="wave-tag">1</span>
-          <ZoomWave deck={A} accent="#ffffff" />
-        </div>
-        <div className="wave-row">
-          <span className="wave-tag">2</span>
-          <ZoomWave deck={B} accent="#ffffff" />
-        </div>
-      </div>
+      {!wide && waves}
 
       <main className={`console ${wide ? 'wide' : 'stack'}`}>
         <DeckPanel deck={A} jog={jog} shiftKey={shiftKey} side="L" />
-        <Mixer faderLen={wide ? 150 : 130} />
+        {wide ? (
+          <div className="center-col" style={{ width: centerW }}>
+            {waves}
+            <Mixer faderLen={150} />
+          </div>
+        ) : (
+          <Mixer faderLen={130} />
+        )}
         <DeckPanel deck={B} jog={jog} shiftKey={shiftKey} side="R" />
       </main>
 
