@@ -63,7 +63,15 @@ const initial = (): DeckState => ({
   fader: 0.85,
 });
 
-const dbToLin = (db: number) => Math.pow(10, db / 20);
+function ytErrorText(code: number) {
+  if (code === 101 || code === 150)
+    return `저작권자가 이 영상을 다른 사이트에서 못 틀게 막아 두었어요 (오류 ${code}). 공식 음원·'Topic' 채널 영상에 많아요. 다른 업로드 영상을 쓰거나, 음악 파일로 받아 '파일' 버튼으로 넣어 주세요.`;
+  if (code === 100) return '없거나 비공개인 영상이에요 (오류 100).';
+  if (code === 2) return '유튜브 주소가 올바르지 않아요 (오류 2).';
+  return `유튜브 재생 중 문제가 생겼어요 (오류 ${code ?? '?'}). 새로고침 후 다시 해 보세요.`;
+}
+
+const dbToLin =(db: number) => Math.pow(10, db / 20);
 export const eqDb = (k: number) => (k < 0 ? k * 26 : k * 6);
 export const trimDb = (k: number) => (k < 0 ? k * 24 : k * 9);
 
@@ -327,8 +335,9 @@ export class Deck {
             const d = this.yt?.getDuration() || 0;
             if (d && d !== this.state.duration) this.set({ duration: d });
           },
-          onError: () => {
-            this.set({ loading: false, error: '이 영상은 다른 사이트에서 재생이 막혀 있어요. 다른 영상을 써 주세요.' });
+          onError: (e: any) => {
+            this.ytReady = true;
+            this.set({ loading: false, error: ytErrorText(e?.data) });
             resolve();
           },
         },
