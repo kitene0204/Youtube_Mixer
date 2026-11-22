@@ -64,3 +64,43 @@ export async function fetchMeta(id: string): Promise<{ title: string; author: st
     return null;
   }
 }
+
+// ---------- 대체 영상 검색 (임베드 차단 시) ----------
+// 빌드할 때 VITE_YT_API_KEY 환경변수로 유튜브 Data API v3 키를 심어 둬야 동작한다.
+// (Google Cloud Console에서 "YouTube Data API v3"를 켠 다음, HTTP 리퍼러를 내 도메인으로
+//  제한한 API 키를 만들어서 쓰면 안전하다. 키가 없으면 이 기능은 조용히 꺼진다.)
+export interface AltVideo {
+  id: string;
+  title: string;
+  channel: string;
+  thumb: string;
+}
+
+export function hasYouTubeApiKey(): boolean {
+  return !!(import.meta.env.VITE_YT_API_KEY && String(import.meta.env.VITE_YT_API_KEY).trim());
+}
+
+export async function searchAlternatives(query: string, max = 6): Promise<AltVideo[]> {
+  const key = import.meta.env.VITE_YT_API_KEY;
+  if (!key) return [];
+  const params = new URLSearchParams({
+    part: 'snippet',
+    type: 'video',
+    videoEmbeddable: 'true', // 임베드 가능한 영상만 서버에서 걸러서 돌려준다
+    maxResults: String(max),
+    q: query,
+    key: String(key),
+  });
+  const r = await fetch(`https://www.googleapis.com/youtube/v3/search?${params.toString()}`);
+  if (!r.ok) throw new Error(`YouTube search failed (${r.status})`);
+  const d = await r.json();
+  const items: any[] = d.items || [];
+  return items
+    .filter((it) => it?.id?.videoId)
+    .map((it) => ({
+      id: it.id.videoId as string,
+      title: (it.snippet?.title as string) || '',
+      channel: (it.snippet?.channelTitle as string) || '',
+      thumb: (it.snippet?.thumbnails?.default?.url as string) || '',
+    }));
+}

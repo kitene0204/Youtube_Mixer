@@ -1,5 +1,5 @@
 import { computePeaks, detectBpm, type Peaks } from './analysis';
-import { extractYouTubeId, fetchMeta, loadYouTubeApi, type YTPlayer } from './youtube';
+import { extractYouTubeId, fetchMeta, hasYouTubeApiKey, loadYouTubeApi, searchAlternatives, type AltVideo, type YTPlayer } from './youtube';
 import type { Engine } from './engine';
 
 export const SEC_PER_REV = 1.8; // 33⅓ rpm 판이 한 바퀴 도는 시간
@@ -14,6 +14,9 @@ export interface DeckState {
   artist: string;
   loading: boolean;
   error: string;
+  errorCode: number | null;
+  altLoading: boolean;
+  alternatives: AltVideo[] | null;
   ytId: string | null;
   playing: boolean;
   baseBpm: number | null;
@@ -42,6 +45,9 @@ const initial = (): DeckState => ({
   artist: '',
   loading: false,
   error: '',
+  errorCode: null,
+  altLoading: false,
+  alternatives: null,
   ytId: null,
   playing: false,
   baseBpm: null,
@@ -225,6 +231,9 @@ export class Deck {
       title,
       artist,
       error: '',
+      errorCode: null,
+      altLoading: false,
+      alternatives: null,
       loading: true,
       playing: false,
       hotcues: Array(8).fill(null),
@@ -338,13 +347,45 @@ export class Deck {
           },
           onError: (e: any) => {
             this.ytReady = true;
-            this.set({ loading: false, error: ytErrorText(e?.data) });
+            const code = e?.data ?? null;
+            this.set({ loading: false, error: ytErrorText(code), errorCode: code, alternatives: null });
             resolve();
           },
         },
       });
     });
     return true;
+  }
+
+  /** 임베드가 막힌 영상 대신 비슷한(임베드 가능한) 영상을 찾아 제안한다 */
+  async findAlternatives() {
+    if (!hasYouTubeApiKey()) {
+      this.set({
+        error: '자동 검색을 쓰려면 유튜브 API 키 설정이 필요해요 (README의 "대체 영상 검색 기능" 참고)',
+        errorCode: null,
+      });
+      return;
+    }
+    const query = [this.state.title, this.state.artist]
+      .filter(Boolean)
+      .join(' ')
+      .replace(/\s*-\s*topic\s*$/i, '')
+      .trim();
+    if (!query) return;
+    this.set({ altLoading: true, alternatives: null });
+    try {
+      const results = await searchAlternatives(query);
+      this.set({ altLoading: false, alternatives: results, error: results.length ? '' : '비슷한 영상을 찾지 못했어요. 음악 파일로 받아 "파일" 버튼으로 넣어 주세요.' });
+    } catch (e) {
+      console.error(e);
+      this.set({ altLoading: false, error: '대체 영상 검색에 실패했어요. API 키나 네트워크를 확인해 주세요.' });
+    }
+  }
+
+  /** 제안된 대체 영상 중 하나를 선택해서 불러온다 */
+  chooseAlternative(id: string) {
+    this.set({ alternatives: null });
+    this.loadYouTube(id);
   }
 
   async loadScratchSample(file: File) {
