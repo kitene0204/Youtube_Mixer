@@ -43,6 +43,10 @@ export function Help({ onClose }: { onClose: () => void }) {
               <li>
                 <b>X-FADER SCRATCH</b> — 크로스페이더를 살짝만 움직여도 소리가 확 켜지고 꺼져요 (스크래치용)
               </li>
+              <li>
+                <b>🔍 비슷한 영상 찾기</b> — 저작권자가 임베드를 막아둔 영상(오류 101/150)일 때 떠요. 누르면 같은 제목으로 임베드 가능한
+                다른 업로드를 찾아 보여줘요. (유튜브 API 키를 설정해야 보여요 — README 참고)
+              </li>
             </ul>
           </div>
         </div>

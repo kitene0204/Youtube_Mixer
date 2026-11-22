@@ -216,6 +216,29 @@ export function DeckPanel({ deck, jog, shiftKey, side }: { deck: Deck; jog: numb
             {s.error} <b>✕</b>
           </div>
         )}
+        {(s.errorCode === 101 || s.errorCode === 150) && !s.altLoading && !s.alternatives && (
+          <button className="btn tiny alt-find" onClick={() => deck.findAlternatives()}>
+            🔍 비슷한 영상 찾기
+          </button>
+        )}
+        {s.altLoading && <div className="alt-loading">대체 영상 찾는 중…</div>}
+        {s.alternatives && (
+          <div className="alt-list">
+            {s.alternatives.length === 0 && <div className="alt-empty">비슷한 영상을 찾지 못했어요</div>}
+            {s.alternatives.map((a) => (
+              <button key={a.id} className="alt-item" onClick={() => deck.chooseAlternative(a.id)} title={a.channel}>
+                {a.thumb ? <img src={a.thumb} alt="" /> : <span className="alt-thumb-ph" />}
+                <span className="alt-txt">
+                  <span className="alt-title">{a.title}</span>
+                  <span className="alt-channel">{a.channel}</span>
+                </span>
+              </button>
+            ))}
+            <button className="btn tiny alt-close" onClick={() => deck.set({ alternatives: null })}>
+              닫기
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 불러오기 */}
