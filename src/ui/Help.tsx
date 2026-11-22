@@ -44,8 +44,12 @@ export function Help({ onClose }: { onClose: () => void }) {
                 <b>X-FADER SCRATCH</b> — 크로스페이더를 살짝만 움직여도 소리가 확 켜지고 꺼져요 (스크래치용)
               </li>
               <li>
+                <b>유튜브 검색</b> — 불러오기 칸에 유튜브 주소 대신 노래 제목을 입력하고 LOAD(검색)를 누르면, 유튜브에서 바로 검색해서
+                썸네일 목록으로 보여줘요. 원하는 걸 클릭하면 그 영상이 바로 불러와집니다.
+              </li>
+              <li>
                 <b>🔍 비슷한 영상 찾기</b> — 저작권자가 임베드를 막아둔 영상(오류 101/150)일 때 떠요. 누르면 같은 제목으로 임베드 가능한
-                다른 업로드를 찾아 보여줘요. (유튜브 API 키를 설정해야 보여요 — README 참고)
+                다른 업로드를 찾아 보여줘요. (검색·비슷한 영상 찾기 둘 다 유튜브 API 키를 설정해야 동작해요 — README 참고)
               </li>
             </ul>
           </div>
@@ -67,7 +71,11 @@ export function Help({ onClose }: { onClose: () => void }) {
               <K>1</K>
               <K>2</K>
               <K>3</K>
-              <K>4</K> 핫큐 (Shift+숫자 = 지우기)
+              <K>4</K>
+              <K>5</K>
+              <K>6</K>
+              <K>7</K>
+              <K>8</K> 핫큐 1~8 (Shift+숫자 = 지우기)
             </p>
           </div>
           <div>
@@ -79,14 +87,19 @@ export function Help({ onClose }: { onClose: () => void }) {
               <K>↑</K> <K>↓</K> 볼륨 올림·내림
             </p>
             <p>
-              <K>End</K> 재생/정지 · <K>PgDn</K> CUE · <K>Enter</K> SYNC
+              <K>Enter</K> SYNC · <K>Pause</K> CUE
             </p>
             <p>
               <K>Insert</K>
               <K>Home</K>
               <K>PgUp</K>
-              <K>Delete</K> 핫큐
+              <K>Delete</K>
+              <K>End</K>
+              <K>PgDn</K>
+              <K>PrtScn</K>
+              <K>ScrLk</K> 핫큐 1~8 (Shift+키 = 지우기)
             </p>
+            <p className="note">재생/정지는 화면의 ▶/❚❚ 버튼을 눌러주세요 (오른쪽은 이 9개 키가 전부 큐 쪽으로 쓰여요).</p>
           </div>
           <div>
             <h3>믹서</h3>
