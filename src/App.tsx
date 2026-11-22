@@ -79,11 +79,15 @@ export default function App() {
       }
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       const code = e.code;
-      if (held.has(code)) {
-        e.preventDefault();
-        return;
+      // PrintScreen은 윈도우/브라우저 조합에 따라 keyup이 아예 안 오는 경우가 있어서
+      // (OS가 캡처해버림), 이 키만은 눌림 상태로 묶어두지 않고 매번 새로 실행한다.
+      if (code !== 'PrintScreen') {
+        if (held.has(code)) {
+          e.preventDefault();
+          return;
+        }
+        held.add(code);
       }
-      held.add(code);
       const sh = e.shiftKey;
       const map: Record<string, () => void> = {
         KeyA: () => scratchKey(A, -1, true),
@@ -97,17 +101,25 @@ export default function App() {
         Digit2: () => A.hotcue(1, sh),
         Digit3: () => A.hotcue(2, sh),
         Digit4: () => A.hotcue(3, sh),
+        Digit5: () => A.hotcue(4, sh),
+        Digit6: () => A.hotcue(5, sh),
+        Digit7: () => A.hotcue(6, sh),
+        Digit8: () => A.hotcue(7, sh),
         ArrowLeft: () => scratchKey(B, -1, true),
         ArrowRight: () => scratchKey(B, 1, true),
         ArrowUp: () => vol(1, 0.05),
         ArrowDown: () => vol(1, -0.05),
-        End: () => B.togglePlay(),
-        PageDown: () => B.cueDown(),
         Enter: () => B.sync(),
+        // 오른쪽 큐 9개 버튼(PrintScreen ~ PageDown): 핫큐 1~8 + CUE
         Insert: () => B.hotcue(0, sh),
         Home: () => B.hotcue(1, sh),
         PageUp: () => B.hotcue(2, sh),
         Delete: () => B.hotcue(3, sh),
+        End: () => B.hotcue(4, sh),
+        PageDown: () => B.hotcue(5, sh),
+        PrintScreen: () => B.hotcue(6, sh),
+        ScrollLock: () => B.hotcue(7, sh),
+        Pause: () => B.cueDown(),
         Space: () => engine.setXf(0.5),
       };
       const f = map[code];
@@ -126,7 +138,7 @@ export default function App() {
       if (e.code === 'ArrowLeft') scratchKey(B, -1, false);
       if (e.code === 'ArrowRight') scratchKey(B, 1, false);
       if (e.code === 'KeyQ') A.cueUp();
-      if (e.code === 'PageDown') B.cueUp();
+      if (e.code === 'Pause') B.cueUp();
     };
     const blur = () => {
       xfDir = 0;
