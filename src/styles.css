@@ -398,6 +398,84 @@ button {
   border-radius: 7px;
   cursor: pointer;
 }
+.alt-find {
+  margin-top: 6px;
+  width: 100%;
+  background: rgba(47, 212, 245, 0.1);
+  border-color: rgba(47, 212, 245, 0.4);
+  color: var(--acc);
+}
+.alt-loading {
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: var(--ink2);
+  padding: 4px 2px;
+}
+.alt-list {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+  background: #0b1018;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 5px;
+}
+.alt-empty {
+  font-size: 11.5px;
+  color: var(--ink2);
+  padding: 4px;
+}
+.alt-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--raise);
+  border: 1px solid var(--line2);
+  border-radius: 7px;
+  padding: 4px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--kr);
+}
+.alt-item:hover {
+  background: #212c3e;
+  border-color: var(--acc);
+}
+.alt-item img,
+.alt-thumb-ph {
+  width: 42px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: #1b2433;
+}
+.alt-txt {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+}
+.alt-title {
+  font-size: 11.5px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.alt-channel {
+  font-size: 10px;
+  color: var(--ink3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.alt-close {
+  align-self: flex-end;
+}
 
 .loadbar {
   display: flex;
